@@ -6,6 +6,7 @@
 
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/color.hpp>
+#include <ftxui/screen/terminal.hpp>
 
 #include "format.hpp"
 #include "render.hpp"
@@ -147,7 +148,8 @@ Element render_mempool(const AppState& s) {
         // During slide: render old blocks minus the last (it slides off the right edge).
         const std::vector<BlockStat>& src        = anim_slide ? s.block_anim_old : s.recent_blocks;
         int                           num        = static_cast<int>(src.size());
-        int                           max_render = anim_slide ? std::max(0, num - 1) : num;
+        int max_cols   = std::max(1, (Terminal::Size().dimx - 4) / (COL_WIDTH + 1));
+        int max_render = std::min(anim_slide ? std::max(0, num - 1) : num, max_cols);
 
         // Slide offset grows from 0 → (COL_WIDTH+1) chars over SLIDE_FRAMES frames.
         int left_pad = 0;
@@ -185,6 +187,7 @@ Element render_mempool(const AppState& s) {
                     text(fmt_height(b.height)) | center,
                     text(fmt_int(b.txs) + " tx") | center | color(Color::GrayDark),
                     text(fmt_bytes(b.total_size)) | center | color(Color::GrayDark),
+                    text(b.time > 0 ? fmt_time_ago(b.time) : "") | center | color(Color::GrayDark),
                 }) |
                 size(WIDTH, EQUAL, COL_WIDTH));
         }

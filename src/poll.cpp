@@ -128,19 +128,20 @@ void poll_rpc(RpcClient& rpc, AppState& state, std::mutex& mtx,
         if (on_core_ready)
             on_core_ready();
 
-        // ── Phase 2: per-block stats (slow — 7 sequential calls) ────────────
+        // ── Phase 2: per-block stats (slow — up to 20 sequential calls) ────────────
         if (new_tip != cached_tip && new_tip > 0) {
             std::vector<BlockStat> fresh_blocks;
-            for (int i = 0; i < 7 && (new_tip - i) >= 0; ++i) {
+            for (int i = 0; i < 20 && (new_tip - i) >= 0; ++i) {
                 try {
                     json      params = {new_tip - i,
-                                        json({"height", "txs", "total_size", "total_weight"})};
+                                        json({"height", "txs", "total_size", "total_weight", "time"})};
                     auto      bs     = rpc.call("getblockstats", params)["result"];
                     BlockStat blk;
                     blk.height       = bs.value("height", 0LL);
                     blk.txs          = bs.value("txs", 0LL);
                     blk.total_size   = bs.value("total_size", 0LL);
                     blk.total_weight = bs.value("total_weight", 0LL);
+                    blk.time         = bs.value("time", 0LL);
                     fresh_blocks.push_back(blk);
                 } catch (...) {
                     break;
