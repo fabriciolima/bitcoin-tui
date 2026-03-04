@@ -20,6 +20,7 @@ struct BlockStat {
     int64_t txs          = 0;
     int64_t total_size   = 0;
     int64_t total_weight = 0;
+    int64_t time         = 0;
 };
 
 struct PeerInfo {

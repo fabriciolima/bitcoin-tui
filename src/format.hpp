@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
@@ -107,6 +108,22 @@ inline std::string fmt_age(int64_t secs) {
     if (secs < 3600)
         return std::to_string(secs / 60) + "m " + std::to_string(secs % 60) + "s";
     return std::to_string(secs / 3600) + "h " + std::to_string((secs % 3600) / 60) + "m";
+}
+
+inline std::string fmt_time_ago(int64_t timestamp) {
+    int64_t now_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
+    int64_t diff = now_secs - timestamp;
+    if (diff < 0)
+        return "just now";
+    if (diff < 60)
+        return std::to_string(diff) + "s ago";
+    if (diff < 3600)
+        return std::to_string(diff / 60) + "m ago";
+    if (diff < 86400)
+        return std::to_string(diff / 3600) + "h ago";
+    return std::to_string(diff / 86400) + "d ago";
 }
 
 inline std::string trimmed(std::string s) {
