@@ -2,6 +2,12 @@
 
 All notable changes to bitcoin-tui are documented here.
 
+## [0.6.0] - 2026-03-04
+
+### Added
+- **Block age** - each block column in the Mempool tab now shows how long ago the block was mined (e.g. `14m ago`), fetched via the `time` field from `getblockstats`
+- **Adaptive block count** - the Mempool tab now fills the available terminal width with block columns (up to 20 blocks fetched), rather than always showing 7
+
 ## [0.5.0] - 2026-03-04
 
 ### Added
