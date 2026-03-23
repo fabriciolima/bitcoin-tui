@@ -54,6 +54,7 @@ struct AppState {
     bool        pruned     = false;
     bool        ibd        = false;
     std::string bestblockhash;
+    int64_t     blocks_dir_kb = 0; // du -s output in KB
 
     // Network
     int         connections     = 0;

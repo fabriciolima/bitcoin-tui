@@ -179,6 +179,27 @@ static int run(int argc, char* argv[]) {
         }
     }
 
+    // Compute blocks directory path for disk usage display.
+    std::string blocks_dir;
+    {
+        std::string base;
+        if (!datadir.empty()) {
+            base = datadir;
+        } else {
+            const char* home = std::getenv("HOME");
+            if (home) {
+#ifdef __APPLE__
+                base = std::string(home) + "/Library/Application Support/Bitcoin";
+#else
+                base = std::string(home) + "/.bitcoin";
+#endif
+            }
+        }
+        if (!base.empty()) {
+            blocks_dir = base + "/blocks";
+        }
+    }
+
     // State + RPC client
     AppState   state;
     std::mutex state_mtx;
@@ -1861,7 +1882,7 @@ static int run(int argc, char* argv[]) {
         }
         screen.PostEvent(Event::Custom);
 
-        poll_rpc(rpc, state, state_mtx, wake_screen);
+        poll_rpc(rpc, state, state_mtx, blocks_dir, wake_screen);
 
         {
             std::lock_guard lock(state_mtx);
@@ -1883,7 +1904,7 @@ static int run(int argc, char* argv[]) {
             }
             screen.PostEvent(Event::Custom);
 
-            poll_rpc(rpc, state, state_mtx, wake_screen);
+            poll_rpc(rpc, state, state_mtx, blocks_dir, wake_screen);
 
             {
                 std::lock_guard lock(state_mtx);

@@ -1,12 +1,25 @@
+#include <cstdio>
 #include <vector>
 
 #include "format.hpp"
 #include "poll.hpp"
 
+// Run du -s on a directory and return the result in KB (matching du's output).
+static int64_t du_size_kb(const std::string& path) {
+    std::string cmd = "du -s " + path + " 2>/dev/null";
+    FILE* fp = popen(cmd.c_str(), "r");
+    if (!fp) return 0;
+    int64_t kb = 0;
+    if (fscanf(fp, "%ld", &kb) != 1) kb = 0;
+    pclose(fp);
+    return kb;
+}
+
 // ============================================================================
 // RPC polling
 // ============================================================================
 void poll_rpc(RpcClient& rpc, AppState& state, std::mutex& mtx,
+              const std::string& blocks_dir,
               const std::function<void()>& on_core_ready) {
     // Read cached tip height so we can skip re-fetching block stats when tip hasn't moved.
     int64_t cached_tip = 0;
@@ -37,6 +50,9 @@ void poll_rpc(RpcClient& rpc, AppState& state, std::mutex& mtx,
             state.pruned        = bc.value("pruned", false);
             state.ibd           = bc.value("initialblockdownload", false);
             state.bestblockhash = bc.value("bestblockhash", "");
+            // Compute blocks/ directory disk usage (du -s, in KB)
+            if (!blocks_dir.empty())
+                state.blocks_dir_kb = du_size_kb(blocks_dir);
 
             // Network
             state.connections      = net.value("connections", 0);

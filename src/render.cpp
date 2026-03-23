@@ -85,6 +85,12 @@ Element render_dashboard(const AppState& s) {
             label_value("  IBD         : ", s.ibd ? "yes" : "no",
                         s.ibd ? Color::Yellow : Color::Green),
             label_value("  Pruned      : ", s.pruned ? "yes" : "no"),
+            label_value("  Size        : ", [&] {
+                std::ostringstream ss;
+                ss << std::fixed << std::setprecision(2)
+                   << static_cast<double>(s.blocks_dir_kb) / (1024.0 * 1024.0) << " MB";
+                return ss.str();
+            }()),
         });
 
     // Network section
